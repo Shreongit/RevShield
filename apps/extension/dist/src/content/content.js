@@ -1,0 +1,1 @@
+(function(){let a=0;try{const e=HTMLCanvasElement.prototype.toDataURL;HTMLCanvasElement.prototype.toDataURL=function(...t){return a++,e.apply(this,t)};const n=CanvasRenderingContext2D.prototype.getImageData;CanvasRenderingContext2D.prototype.getImageData=function(...t){return a++,n.apply(this,t)}}catch{}})();

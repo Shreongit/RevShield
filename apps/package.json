@@ -1,0 +1,16 @@
+{
+  "name": "webshield-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@webshield/web",
+    "dev:extension": "npm run dev --workspace=@webshield/extension",
+    "build:packages": "npm run build --workspaces --if-present",
+    "build:web": "npm run build --workspace=@webshield/web",
+    "build:extension": "npm run build --workspace=@webshield/extension",
+    "build": "npm run build:web && npm run build:extension"
+  }
+}

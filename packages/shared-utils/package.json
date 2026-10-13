@@ -1,0 +1,9 @@
+{
+  "name": "@webshield/shared-utils",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "dependencies": {
+    "@webshield/shared-types": "*"
+  }
+}

@@ -22,3 +22,7 @@ pytest
 pytest-asyncio
 python-multipart
 email-validator
+sqlalchemy[asyncio]
+# OR explicitly add:
+greenlet
+

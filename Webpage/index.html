@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REVSHIELD — Understand what happens behind every website.</title>
+  <meta name="description" content="REVSHIELD is a free and open-source platform for analyzing website security, privacy, trackers, advertising activity, cookies, redirects, and suspicious behavior." />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+
+  <!-- ==========================================================================
+       Header & Navigation
+       ========================================================================== -->
+  <header class="header">
+    <div class="container">
+      <div class="nav-wrapper">
+        <!-- Brand Logo -->
+        <a href="#overview" class="brand">
+          <div class="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4" stroke-width="1.75"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">REVSHIELD</span>
+            <span class="brand-subtitle">Intelligence</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <ul class="nav-links">
+          <li><a href="#overview" class="nav-link">Overview</a></li>
+          <li><a href="#problem" class="nav-link">The Problem</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#extension" class="nav-link">Extension</a></li>
+          <li><a href="#privacy" class="nav-link">Privacy</a></li>
+          <li><a href="#tech-stack" class="nav-link">Technology</a></li>
+          <li><a href="#architecture" class="nav-link">Architecture</a></li>
+          <li><a href="#run-locally" class="nav-link">Run Locally</a></li>
+        </ul>
+
+        <!-- Header Actions -->
+        <div class="nav-actions">
+          <button class="theme-toggle" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+            <!-- Populated via main.js -->
+          </button>
+          <a href="https://github.com/ifshreyas/RevShield" target="_blank" rel="noreferrer" class="btn-github btn-github-nav">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub</span>
+          </a>
+          <button class="mobile-toggle" aria-label="Open Navigation Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-menu">
+      <ul class="mobile-nav-links">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#problem">The Problem</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#extension">Extension</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#tech-stack">Technology</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#run-locally">Run Locally</a></li>
+        <li>
+          <a href="https://github.com/ifshreyas/RevShield" target="_blank" rel="noreferrer" class="btn-github" style="display:inline-flex; width:100%; justify-content:center;">
+            <span>View Source on GitHub</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Section 1: Hero
+       ========================================================================== -->
+  <section id="overview" class="hero">
+    <div class="container">
+      <div class="hero-pill">
+        <span class="hero-pill-tag">REVSHIELD 1.0</span>
+        <span>&bull;</span>
+        <span>Open Source Security & Privacy Intelligence</span>
+      </div>
+
+      <h1 class="hero-headline">
+        Understand what happens <br />
+        <span class="hero-headline-accent">behind every website.</span>
+      </h1>
+
+      <p class="hero-subtext">
+        REVSHIELD is an open-source platform for analyzing website security, privacy, trackers, advertising activity, cookies, redirects, and suspicious behavior with continuous local browser protection.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="https://github.com/ifshreyas/RevShield" target="_blank" rel="noreferrer" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>View on GitHub</span>
+        </a>
+        <a href="#run-locally" class="btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          <span>Run Locally</span>
+        </a>
+      </div>
+
+      <!-- Technical Pipeline Visualization -->
+      <div class="hero-diagram">
+        <div class="diagram-flow">
+          <div class="diagram-node">
+            <div class="diagram-node-title">Target URL</div>
+            <div class="diagram-node-desc">User input / Browser tab</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="diagram-node-title">REVSHIELD Core</div>
+            <div class="diagram-node-desc">Anti-SSRF & DNS validation</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="diagram-node-title">Multi-Engine Audit</div>
+            <div class="diagram-node-desc">TLS &bull; Headers &bull; Trackers &bull; ML</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-node">
+            <div class="diagram-node-title">Intelligence Report</div>
+            <div class="diagram-node-desc">Risk score & remediation</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 2: The Problem
+       ========================================================================== -->
+  <section id="problem">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Context & Challenge</span>
+        <h2 class="section-title">The web is more complex than it looks.</h2>
+        <p class="section-subtitle">
+          When you navigate to a standard webpage, dozens of unseen background connections trigger automatically. Understanding their privacy and security implications is rarely straightforward.
+        </p>
+      </div>
+
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </div>
+          <h3 class="problem-title">Hidden Third-Party Requests</h3>
+          <p class="problem-text">
+            Modern websites frequently bundle scripts from 10 to 50+ third-party domains, including behavioral analytics, tag managers, and session replay recorders that monitor user interactions.
+          </p>
+        </div>
+
+        <div class="problem-card">
+          <div class="problem-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h3 class="problem-title">Advertising & Retargeting Networks</h3>
+          <p class="problem-text">
+            Programmatic ad exchanges synchronize identifiers across visits, building detailed behavioral profiles across unrelated web properties without transparent user awareness.
+          </p>
+        </div>
+
+        <div class="problem-card">
+          <div class="problem-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h3 class="problem-title">Opaque Security Configurations</h3>
+          <p class="problem-text">
+            Missing security headers (HSTS, CSP, X-Frame-Options), weak TLS cipher suites, and unflagged persistent cookies leave web applications vulnerable to clickjacking, MITM, and credential interception.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 3: What REVSHIELD Analyzes
+       ========================================================================== -->
+  <section id="features" style="background: var(--bg-surface-elevated);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Core Capabilities</span>
+        <h2 class="section-title">What REVSHIELD Analyzes</h2>
+        <p class="section-subtitle">
+          A multi-engine audit suite breaking down transport security, privacy posture, cookies, and machine learning threat vectors into transparent findings.
+        </p>
+      </div>
+
+      <div class="capabilities-grid">
+        <!-- Security -->
+        <div class="capability-card">
+          <div class="capability-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h3 class="capability-title">Security & Transport</h3>
+          <p class="capability-desc">Deep socket-level certificate verification and defensive HTTP response header audit.</p>
+          <ul class="capability-list">
+            <li class="capability-item">TLS 1.2 & 1.3 handshake verification</li>
+            <li class="capability-item">Certificate issuer, SAN, & expiration check</li>
+            <li class="capability-item">CSP, HSTS, X-Frame-Options & Referrer Policy</li>
+            <li class="capability-item">Protocol downgrade detection (HTTPS &rarr; HTTP)</li>
+          </ul>
+        </div>
+
+        <!-- Privacy -->
+        <div class="capability-card">
+          <div class="capability-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </div>
+          <h3 class="capability-title">Privacy & Trackers</h3>
+          <p class="capability-desc">Categorization of tracking beacons, analytics suites, and telemetry collectors.</p>
+          <ul class="capability-list">
+            <li class="capability-item">Web traffic telemetry & analytics (GA, Segment)</li>
+            <li class="capability-item">Session recording & heatmaps (Hotjar, Clarity)</li>
+            <li class="capability-item">Social conversion pixels (Meta, TikTok, LinkedIn)</li>
+            <li class="capability-item">Canvas and audio fingerprinting vectors</li>
+          </ul>
+        </div>
+
+        <!-- Advertising -->
+        <div class="capability-card">
+          <div class="capability-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <h3 class="capability-title">Advertising Networks</h3>
+          <p class="capability-desc">Inspection of programmatic ad distribution, exchanges, and retargeting scripts.</p>
+          <ul class="capability-list">
+            <li class="capability-item">DoubleClick & Google Syndication ads</li>
+            <li class="capability-item">Behavioral retargeting engines (Criteo, Taboola)</li>
+            <li class="capability-item">Real-time bidding & supply-side exchanges</li>
+            <li class="capability-item">Sponsored content injection hooks</li>
+          </ul>
+        </div>
+
+        <!-- Cookies -->
+        <div class="capability-card">
+          <div class="capability-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8.5 8.5v.01"></path>
+              <path d="M15.5 8.5v.01"></path>
+              <path d="M8.5 15.5v.01"></path>
+              <path d="M15.5 15.5v.01"></path>
+              <path d="M12 12v.01"></path>
+            </svg>
+          </div>
+          <h3 class="capability-title">Cookies & Storage</h3>
+          <p class="capability-desc">Scope, persistence, and security flag validation without exposing sensitive token contents.</p>
+          <ul class="capability-list">
+            <li class="capability-item">First-party vs. third-party cookie isolation</li>
+            <li class="capability-item">Secure, HttpOnly, and SameSite attribute check</li>
+            <li class="capability-item">Persistent vs. session expiration duration</li>
+            <li class="capability-item">Zero credential logging guarantee</li>
+          </ul>
+        </div>
+
+        <!-- Threat ML -->
+        <div class="capability-card">
+          <div class="capability-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+              <rect x="9" y="9" width="6" height="6"></rect>
+              <line x1="9" y1="1" x2="9" y2="4"></line>
+              <line x1="15" y1="1" x2="15" y2="4"></line>
+              <line x1="9" y1="20" x2="9" y2="23"></line>
+              <line x1="15" y1="20" x2="15" y2="23"></line>
+              <line x1="20" y1="9" x2="23" y2="9"></line>
+              <line x1="20" y1="14" x2="23" y2="14"></line>
+              <line x1="1" y1="9" x2="4" y2="9"></line>
+              <line x1="1" y1="14" x2="4" y2="14"></line>
+            </svg>
+          </div>
+          <h3 class="capability-title">Threat & Phishing ML</h3>
+          <p class="capability-desc">Interpretable machine learning classification examining 25+ structural and lexical features.</p>
+          <ul class="capability-list">
+            <li class="capability-item">Punycode / IDN homograph attack detection</li>
+            <li class="capability-item">Shannon entropy domain randomness scoring</li>
+            <li class="capability-item">Excessive subdomain depth & keyword heuristics</li>
+            <li class="capability-item">Calibrated probability with feature factor breakdown</li>
+          </ul>
+        </div>
+
+        <!-- Risk Scoring -->
+        <div class="capability-card">
+          <div class="capability-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3 class="capability-title">Transparent Scoring</h3>
+          <p class="capability-desc">Deterministic 0-100 composite index where every point deduction is explicitly explained.</p>
+          <ul class="capability-list">
+            <li class="capability-item">Weighted security, privacy, and threat factors</li>
+            <li class="capability-item">Graded risk tiers: Safe, Low, Suspicious, High</li>
+            <li class="capability-item">Positive bonus credits for best practices</li>
+            <li class="capability-item">Prioritized remediation advice</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 4: How It Works
+       ========================================================================== -->
+  <section id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Analysis Lifecycle</span>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">
+          From target URL input to structured findings report, every stage is designed for isolation, security, and transparent factor computation.
+        </p>
+      </div>
+
+      <div class="steps-wrapper">
+        <div class="step-card">
+          <span class="step-badge">STEP 01</span>
+          <h3 class="step-title">URL Ingestion</h3>
+          <p class="step-text">
+            The target URL is normalized, stripping tracking query parameters, fragments, and standardizing protocol schemes.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <span class="step-badge">STEP 02</span>
+          <h3 class="step-title">Anti-SSRF Validation</h3>
+          <p class="step-text">
+            DNS is pre-resolved. Private subnets (RFC 1918), loopback (127.0.0.1, ::1), and cloud metadata IPs are strictly rejected.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <span class="step-badge">STEP 03</span>
+          <h3 class="step-title">Multi-Vector Audit</h3>
+          <p class="step-text">
+            Analyzers inspect TLS handshakes, HTTP security headers, third-party network scripts, cookies, and run ML phishing inference.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <span class="step-badge">STEP 04</span>
+          <h3 class="step-title">Score & Intelligence</h3>
+          <p class="step-text">
+            Findings are compiled into sub-scores, transparent factor breakdowns, and remediation steps with JSON export.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 5: Browser Extension
+       ========================================================================== -->
+  <section id="extension" style="background: var(--bg-surface-elevated);">
+    <div class="container">
+      <div class="extension-layout">
+        <!-- Content Side -->
+        <div>
+          <span class="section-tag">Manifest V3 Extension</span>
+          <h2 class="section-title">Protection that continues while you browse.</h2>
+          <p class="section-subtitle">
+            While the web application analyzes individual websites on demand, the REVSHIELD browser extension delivers continuous, zero-latency local protection directly inside Chromium browsers.
+          </p>
+
+          <div class="extension-features">
+            <div class="ext-feature">
+              <h4 class="ext-feature-title">Local DNR Execution</h4>
+              <p class="ext-feature-desc">Blocking happens inside Chromium's DeclarativeNetRequest network engine before tracking scripts execute.</p>
+            </div>
+            <div class="ext-feature">
+              <h4 class="ext-feature-title">Real-Time Stats</h4>
+              <p class="ext-feature-desc">Maintains distinct counters for blocked ads and blocked trackers for both the current website and lifetime browsing.</p>
+            </div>
+            <div class="ext-feature">
+              <h4 class="ext-feature-title">Per-Site Whitelisting</h4>
+              <p class="ext-feature-desc">Easily pause protection for specific trusted domains with a single toggle directly from the popup.</p>
+            </div>
+            <div class="ext-feature">
+              <h4 class="ext-feature-title">Zero History Streaming</h4>
+              <p class="ext-feature-desc">Your personal browsing history, visited URLs, and cookies are never transmitted to any remote server.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive HTML/CSS Mockup Side -->
+        <div class="mockup-container">
+          <div class="popup-mockup">
+            <div class="popup-mockup-header">
+              <div class="popup-brand">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="M9 12l2 2 4-4"/>
+                </svg>
+                <span>REVSHIELD</span>
+              </div>
+              <span id="demo-status" class="popup-tag">PROTECTED</span>
+            </div>
+
+            <div class="popup-site-card">
+              <div class="popup-site-domain">
+                <span>example.com</span>
+                <span style="font-size:0.6875rem; color:var(--text-muted);">HTTPS Valid</span>
+              </div>
+              <div class="popup-toggle-row">
+                <span>Protection for this site</span>
+                <div id="demo-switch" class="switch-mockup" title="Click to test toggle">
+                  <div class="switch-knob"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="popup-stats-grid">
+              <div class="popup-stat-box">
+                <span class="popup-stat-label">Trackers</span>
+                <div id="demo-trackers" class="popup-stat-value">7</div>
+                <span class="popup-stat-sub">blocked this tab</span>
+              </div>
+              <div class="popup-stat-box">
+                <span class="popup-stat-label">Ads</span>
+                <div id="demo-ads" class="popup-stat-value">12</div>
+                <span class="popup-stat-sub">blocked this tab</span>
+              </div>
+            </div>
+
+            <button class="popup-btn" onclick="alert('In the live extension, this opens the full intelligence report in a new tab.')">
+              <span>View Full Intelligence Report</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 6: Privacy First
+       ========================================================================== -->
+  <section id="privacy">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Design Principles</span>
+        <h2 class="section-title">Protection should not require surveillance.</h2>
+        <p class="section-subtitle">
+          Security and privacy tools must uphold the highest standards of data minimization. REVSHIELD operates on a strict local-first model.
+        </p>
+      </div>
+
+      <div class="privacy-flow">
+        <!-- Local Box -->
+        <div class="privacy-box">
+          <div class="privacy-box-header">
+            <span class="privacy-badge-local">100% LOCAL OPERATION</span>
+            <h3 style="font-size:1.15rem; font-weight:700;">Browser Extension</h3>
+          </div>
+          <p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem;">
+            DeclarativeNetRequest rules compile into Chromium's native network layer. Network request blocking, category counting, and whitelist decisions occur locally on your machine.
+          </p>
+          <ul class="capability-list">
+            <li class="capability-item">No URL streaming to external backends</li>
+            <li class="capability-item">No tracking of visited browser history</li>
+            <li class="capability-item">No capture of form inputs or credentials</li>
+          </ul>
+        </div>
+
+        <div class="privacy-flow-divider">
+          <span>&larr; ISOLATION &rarr;</span>
+        </div>
+
+        <!-- Web Analyzer Box -->
+        <div class="privacy-box">
+          <div class="privacy-box-header">
+            <span class="privacy-badge-opt">ON-DEMAND ANALYSIS</span>
+            <h3 style="font-size:1.15rem; font-weight:700;">Public Web Analyzer</h3>
+          </div>
+          <p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem;">
+            When you enter a public website into the REVSHIELD web scanner, the engine queries public HTTP headers, DNS, and TLS certificates without requiring an account.
+          </p>
+          <ul class="capability-list">
+            <li class="capability-item">No mandatory registration or login walls</li>
+            <li class="capability-item">Anti-SSRF protection prevents private intranet abuse</li>
+            <li class="capability-item">Public security posture reports are cache-bounded</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 7: Technology Stack
+       ========================================================================== -->
+  <section id="tech-stack" style="background: var(--bg-surface-elevated);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Modular Engineering</span>
+        <h2 class="section-title">Technology Stack</h2>
+        <p class="section-subtitle">
+          Built with typed modern web technologies, asynchronous Python backend microservices, and native browser APIs.
+        </p>
+      </div>
+
+      <div class="tech-grid">
+        <!-- Frontend -->
+        <div class="tech-card">
+          <div class="tech-card-category">Frontend Web App</div>
+          <div class="tech-items">
+            <div class="tech-item">
+              <span class="tech-name">React 18</span>
+              <span class="tech-role">UI Framework</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">TypeScript</span>
+              <span class="tech-role">Strict Type Safety</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Vite</span>
+              <span class="tech-role">Fast Bundler</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Tailwind CSS</span>
+              <span class="tech-role">Design Tokens</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Lucide Icons</span>
+              <span class="tech-role">Iconography</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backend -->
+        <div class="tech-card">
+          <div class="tech-card-category">Backend API & Engine</div>
+          <div class="tech-items">
+            <div class="tech-item">
+              <span class="tech-name">Python 3.11+</span>
+              <span class="tech-role">Runtime</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">FastAPI</span>
+              <span class="tech-role">Async API Framework</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Pydantic v2</span>
+              <span class="tech-role">Schema Validation</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">SQLAlchemy 2.0</span>
+              <span class="tech-role">Async ORM</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Celery & Redis</span>
+              <span class="tech-role">Task Queue & Cache</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ML & Analysis -->
+        <div class="tech-card">
+          <div class="tech-card-category">ML & Security Analysis</div>
+          <div class="tech-items">
+            <div class="tech-item">
+              <span class="tech-name">scikit-learn</span>
+              <span class="tech-role">RandomForest Classifier</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Pandas & NumPy</span>
+              <span class="tech-role">Feature Extraction</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">httpx</span>
+              <span class="tech-role">Async HTTP Client</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">BeautifulSoup4</span>
+              <span class="tech-role">DOM Parsing</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">cryptography</span>
+              <span class="tech-role">TLS Inspection</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Browser Extension -->
+        <div class="tech-card">
+          <div class="tech-card-category">Browser Extension</div>
+          <div class="tech-items">
+            <div class="tech-item">
+              <span class="tech-name">Manifest V3</span>
+              <span class="tech-role">Extension Spec</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">DeclarativeNetRequest</span>
+              <span class="tech-role">Native Blocking</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Service Worker</span>
+              <span class="tech-role">Background Lifecycle</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">chrome.storage</span>
+              <span class="tech-role">Local Persistence</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Rule Engine</span>
+              <span class="tech-role">DNR Compiler</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 8: System Architecture
+       ========================================================================== -->
+  <section id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">System Topology</span>
+        <h2 class="section-title">System Architecture</h2>
+        <p class="section-subtitle">
+          High-level interaction model showing decoupled client interfaces, secure validation boundary, and modular analysis workers.
+        </p>
+      </div>
+
+      <div class="arch-diagram">
+        <!-- Client Layer -->
+        <div class="arch-layer">
+          <div class="arch-layer-title">Client Layer</div>
+          <div class="arch-nodes-row">
+            <div class="arch-node">
+              <div class="arch-node-name">Web Application</div>
+              <div class="arch-node-tech">React &bull; Vite &bull; Tailwind</div>
+            </div>
+            <div class="arch-node">
+              <div class="arch-node-name">Browser Extension</div>
+              <div class="arch-node-tech">Manifest V3 &bull; DeclarativeNetRequest</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-connector">&darr; REST API &darr;</div>
+
+        <!-- Gateway & Security Layer -->
+        <div class="arch-layer">
+          <div class="arch-layer-title">API Gateway & Security Boundary</div>
+          <div class="arch-nodes-row">
+            <div class="arch-node" style="border-color: var(--accent);">
+              <div class="arch-node-name">FastAPI Core Orchestrator</div>
+              <div class="arch-node-tech">Anti-SSRF &bull; DNS Resolver &bull; Caching</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-connector">&darr; Concurrent Workers &darr;</div>
+
+        <!-- Engines Layer -->
+        <div class="arch-layer">
+          <div class="arch-layer-title">Modular Analysis Engines</div>
+          <div class="arch-nodes-row">
+            <div class="arch-node">
+              <div class="arch-node-name">TLS & SSL Engine</div>
+              <div class="arch-node-tech">Cert Chain & Ciphers</div>
+            </div>
+            <div class="arch-node">
+              <div class="arch-node-name">Header & Cookie Engine</div>
+              <div class="arch-node-tech">CSP, HSTS, Flags</div>
+            </div>
+            <div class="arch-node">
+              <div class="arch-node-name">Tracker & Ad Engine</div>
+              <div class="arch-node-tech">Signature Categorization</div>
+            </div>
+            <div class="arch-node">
+              <div class="arch-node-name">Threat ML Engine</div>
+              <div class="arch-node-tech">RandomForest Classifier</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-connector">&darr; Persistence & Storage &darr;</div>
+
+        <!-- Storage Layer -->
+        <div class="arch-layer">
+          <div class="arch-layer-title">Data & Persistence Layer</div>
+          <div class="arch-nodes-row">
+            <div class="arch-node">
+              <div class="arch-node-name">PostgreSQL 16</div>
+              <div class="arch-node-tech">Reports & Metadata</div>
+            </div>
+            <div class="arch-node">
+              <div class="arch-node-name">Redis 7</div>
+              <div class="arch-node-tech">Cache & Celery Broker</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 9: Why REVSHIELD
+       ========================================================================== -->
+  <section id="why" style="background: var(--bg-surface-elevated);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Value Proposition</span>
+        <h2 class="section-title">Why REVSHIELD</h2>
+        <p class="section-subtitle">
+          Built from the ground up for transparency, auditability, speed, and uncompromising user privacy.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-item span-2">
+          <h3 class="bento-title">Understand Websites Better</h3>
+          <p class="bento-desc">
+            Gain immediate visibility into what third-party vendors and tracking scripts load when you visit any website. Discover missing security headers and inspect TLS certificates with clear educational advice.
+          </p>
+        </div>
+
+        <div class="bento-item">
+          <h3 class="bento-title">Local-First Protection</h3>
+          <p class="bento-desc">
+            Supported ads and trackers are blocked directly in your browser using native DeclarativeNetRequest rules with zero performance overhead.
+          </p>
+        </div>
+
+        <div class="bento-item">
+          <h3 class="bento-title">100% Free & Open Source</h3>
+          <p class="bento-desc">
+            Every line of code is open under the MIT license. No hidden analytics, no premium paywalls, and no account requirements.
+          </p>
+        </div>
+
+        <div class="bento-item span-2">
+          <h3 class="bento-title">Transparent Deterministic Scoring</h3>
+          <p class="bento-desc">
+            Unlike black-box security tools, REVSHIELD calculates risk scores using transparent, documented factors with explicit positive and negative point explanations.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 10: Limitations & Honesty
+       ========================================================================== -->
+  <section id="limitations">
+    <div class="container container-narrow">
+      <div class="section-header">
+        <span class="section-tag">Honesty & Scope</span>
+        <h2 class="section-title">Transparent by design.</h2>
+        <p class="section-subtitle">
+          Security and privacy tools must be honest about their boundaries and technical realities.
+        </p>
+      </div>
+
+      <div class="limitations-card">
+        <p style="font-size:0.9375rem; color:var(--text-secondary); line-height:1.65;">
+          REVSHIELD is designed to assist in auditing, threat detection, and continuous ad/tracker blocking. However, no automated software can guarantee 100% safety across the ever-changing web:
+        </p>
+
+        <div class="limitations-grid">
+          <div class="limitation-item">
+            <h4 class="limitation-title">Dynamic Evasion Techniques</h4>
+            <p class="limitation-text">Novel tracker domains, CNAME cloaking, and first-party proxy routing may occasionally bypass static signature rules until signatures are updated.</p>
+          </div>
+
+          <div class="limitation-item">
+            <h4 class="limitation-title">ML Classifier Boundary</h4>
+            <p class="limitation-text">Machine learning phishing classification is heuristic-assisted and may occasionally produce false positives or false negatives on highly novel URL patterns.</p>
+          </div>
+
+          <div class="limitation-item">
+            <h4 class="limitation-title">Browser API Sandbox</h4>
+            <p class="limitation-text">Manifest V3 DeclarativeNetRequest operates within strict browser rule quotas and cannot modify websocket payloads or dynamic memory directly.</p>
+          </div>
+
+          <div class="limitation-item">
+            <h4 class="limitation-title">No Safety Guarantee</h4>
+            <p class="limitation-text">A high score indicates good defensive configuration and low tracker presence; it does not replace comprehensive enterprise penetration testing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 11: Open Source
+       ========================================================================== -->
+  <section id="open-source" style="background: var(--bg-surface-elevated);">
+    <div class="container container-narrow text-center" style="text-align:center;">
+      <span class="section-tag">Open Source Community</span>
+      <h2 class="section-title">Built to be inspected.</h2>
+      <p class="section-subtitle" style="margin-bottom:2rem;">
+        REVSHIELD is distributed under the MIT Open Source License. You can freely inspect the code, audit the algorithms, contribute tracker signatures, or self-host your own instance.
+      </p>
+
+      <a href="https://github.com/ifshreyas/RevShield" target="_blank" rel="noreferrer" class="btn-primary" style="display:inline-flex;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <span>View Source Code on GitHub</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 12: Run Locally
+       ========================================================================== -->
+  <section id="run-locally">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Developer Guide</span>
+        <h2 class="section-title">Run REVSHIELD Locally</h2>
+        <p class="section-subtitle">
+          Follow these steps to clone the repository and launch the FastAPI backend, React web application, and browser extension on your local machine.
+        </p>
+      </div>
+
+      <div class="setup-guide">
+        <!-- Step 1 -->
+        <div class="setup-step">
+          <span class="setup-step-num">STEP 1</span>
+          <h3 class="setup-step-title">Clone the Repository</h3>
+          <div class="code-block">
+            <button class="code-copy-btn" data-target="code-clone">Copy</button>
+            <pre id="code-clone">git clone https://github.com/ifshreyas/RevShield.git
+cd RevShield</pre>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="setup-step">
+          <span class="setup-step-num">STEP 2</span>
+          <h3 class="setup-step-title">Start the Backend Analysis Engine (FastAPI)</h3>
+          <div class="code-block">
+            <button class="code-copy-btn" data-target="code-backend">Copy</button>
+            <pre id="code-backend">cd apps/api
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000</pre>
+          </div>
+          <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem; font-family:var(--font-mono);">
+            &rarr; Swagger documentation will be available at http://localhost:8000/docs
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="setup-step">
+          <span class="setup-step-num">STEP 3</span>
+          <h3 class="setup-step-title">Start the Web Application (React + Vite)</h3>
+          <div class="code-block">
+            <button class="code-copy-btn" data-target="code-frontend">Copy</button>
+            <pre id="code-frontend"># From project root
+npm install
+npm run dev:web</pre>
+          </div>
+          <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem; font-family:var(--font-mono);">
+            &rarr; Web application will be available at http://localhost:5173
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="setup-step">
+          <span class="setup-step-num">STEP 4</span>
+          <h3 class="setup-step-title">Build & Load the Browser Extension</h3>
+          <div class="code-block">
+            <button class="code-copy-btn" data-target="code-extension">Copy</button>
+            <pre id="code-extension">npm run build:extension</pre>
+          </div>
+          <p style="font-size:0.8125rem; color:var(--text-secondary); margin-top:0.75rem;">
+            Load into Chrome, Brave, Edge, or Arc:
+          </p>
+          <ol style="font-size:0.8125rem; color:var(--text-secondary); padding-left:1.25rem; margin-top:0.5rem; line-height:1.6;">
+            <li>Navigate to <code>chrome://extensions</code></li>
+            <li>Enable <strong>Developer mode</strong> (top-right toggle)</li>
+            <li>Click <strong>Load unpacked</strong> and select <code>RevShield/apps/extension/dist</code></li>
+          </ol>
+        </div>
+
+        <!-- Docker Option -->
+        <div class="setup-step" style="border-top: 1px solid var(--border-subtle); padding-top:1.5rem;">
+          <span class="setup-step-num">ALTERNATIVE</span>
+          <h3 class="setup-step-title">Full-Stack Deployment with Docker Compose</h3>
+          <div class="code-block">
+            <button class="code-copy-btn" data-target="code-docker">Copy</button>
+            <pre id="code-docker">docker-compose up --build</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Section 13: Final CTA
+       ========================================================================== -->
+  <section class="final-cta">
+    <div class="container container-narrow">
+      <h2 class="section-title">Take control of what happens behind the page.</h2>
+      <p class="section-subtitle" style="margin-bottom: 2rem;">
+        Explore the source code, run REVSHIELD locally, and see how modern web privacy and security analysis can be built openly.
+      </p>
+      <div class="hero-ctas" style="margin-bottom:0;">
+        <a href="https://github.com/ifshreyas/RevShield" target="_blank" rel="noreferrer" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>View on GitHub</span>
+        </a>
+        <a href="#run-locally" class="btn-secondary">
+          <span>Run REVSHIELD Locally</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Footer
+       ========================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-weight:700; color:var(--text-primary);">REVSHIELD</div>
+            <div style="font-size:0.6875rem; color:var(--text-muted); font-family:var(--font-mono);">Open Source Web Security & Privacy Analysis</div>
+          </div>
+        </div>
+
+        <ul class="nav-links" style="display:flex; gap:1.25rem;">
+          <li><a href="https://github.com/ifshreyas/RevShield" target="_blank" rel="noreferrer" class="nav-link">GitHub Repository</a></li>
+          <li><a href="https://github.com/ifshreyas/RevShield/tree/main/apps/extension" target="_blank" rel="noreferrer" class="nav-link">Browser Extension</a></li>
+          <li><a href="https://github.com/ifshreyas/RevShield/issues" target="_blank" rel="noreferrer" class="nav-link">Report Issue</a></li>
+          <li><a href="#overview" class="nav-link">Back to Top &uarr;</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; <span id="year">2026</span> REVSHIELD. Released under the MIT License.
+        </div>
+        <div style="display:flex; gap:1rem; align-items:center;">
+          <span>No Tracking</span>
+          <span>&bull;</span>
+          <span>No Ads</span>
+          <span>&bull;</span>
+          <span>Local-First</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript -->
+  <script src="scripts/main.js"></script>
+</body>
+</html>

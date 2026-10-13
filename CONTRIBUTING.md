@@ -1,6 +1,6 @@
-# Contributing to RevShield
+# Contributing to WebShield
 
-Thank you for your interest in contributing to RevShield! RevShield is a free and open-source project dedicated to transparent web privacy and security intelligence.
+Thank you for your interest in contributing to WebShield! WebShield is a free and open-source project dedicated to transparent web privacy and security intelligence.
 
 ---
 

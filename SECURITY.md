@@ -4,7 +4,7 @@
 
 The WebShield team takes the security of our analysis engine and extension seriously. If you discover a security vulnerability or SSRF bypass vector, please report it responsibly:
 
-- Email: `pathakshreyas04@gmail.com` (or open a private security advisory on GitHub).
+- Email: `athakshreyas04@gmail.com` (or open a private security advisory on GitHub).
 - Do not disclose vulnerabilities publicly in issues or discussions until they have been addressed.
 
 ## Supported Versions

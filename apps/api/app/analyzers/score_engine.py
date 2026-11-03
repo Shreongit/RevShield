@@ -1,4 +1,7 @@
+
+import math
 from typing import Any, Dict, List
+
 
 class ScoreEngine:
     @staticmethod
@@ -11,193 +14,384 @@ class ScoreEngine:
         cookies_data: Dict[str, Any],
         threat_data: Dict[str, Any]
     ) -> Dict[str, Any]:
+
         factors: List[Dict[str, Any]] = []
 
+        def safe_dict(value: Any) -> Dict[str, Any]:
+            return value if isinstance(value, dict) else {}
+
+        def safe_list(value: Any) -> List[Any]:
+            return value if isinstance(value, list) else []
+
+        def safe_count(value: Any) -> int:
+            try:
+                return max(0, int(value))
+            except (TypeError, ValueError, OverflowError):
+                return 0
+
+        def add_factor(
+            name: str,
+            impact: int,
+            reason: str,
+            category: str
+        ) -> None:
+            factors.append({
+                "name": name,
+                "impactPoints": impact,
+                "reason": reason,
+                "type": "NEGATIVE" if impact < 0 else "INFO",
+                "scoreCategory": category
+            })
+
         # ==========================================
-        # 1. SECURITY SCORE (0 - 100)
+        # 1. SECURITY SCORE
         # ==========================================
+
         sec_points = 100
 
-        # TLS validity
-        tls_info = tls_data.get("tls_info", {})
-        if not tls_info.get("valid", False):
+        tls_info = safe_dict(safe_dict(tls_data).get("tls_info"))
+        tls_valid = tls_info.get("valid")
+
+        if tls_valid is False:
             sec_points -= 45
-            factors.append({
-                "name": "Invalid or Missing TLS",
-                "impactPoints": -45,
-                "reason": "Traffic is not secured with a valid SSL/TLS certificate.",
-                "type": "NEGATIVE"
-            })
+            add_factor(
+                "Invalid or Missing TLS",
+                -45,
+                "The scanner confirmed that the TLS certificate "
+                "is invalid or unavailable.",
+                "SECURITY"
+            )
+
+        elif tls_valid is True:
+            add_factor(
+                "Valid TLS Certificate",
+                0,
+                f"Valid certificate issued by "
+                f"{tls_info.get('issuer', 'CA')} using "
+                f"{tls_info.get('protocolVersion', 'TLS')}. "
+                "No bonus points are awarded.",
+                "SECURITY"
+            )
+
         else:
-            factors.append({
-                "name": "Valid TLS Certificate",
-                "impactPoints": 15,
-                "reason": f"Trusted certificate ({tls_info.get('issuer', 'CA')}) with {tls_info.get('protocolVersion', 'TLS')}.",
-                "type": "POSITIVE"
-            })
+            add_factor(
+                "TLS Status Unknown",
+                0,
+                "The scanner could not determine TLS certificate "
+                "validity. No invalid-certificate penalty was applied.",
+                "SECURITY"
+            )
 
-        # Headers check
-        header_map = {h["headerName"]: h for h in headers_data.get("headers", [])}
+        headers = safe_list(safe_dict(headers_data).get("headers"))
 
-        # CSP
-        csp = header_map.get("Content-Security-Policy")
-        if not csp or not csp.get("present"):
+        header_map = {
+            header.get("headerName", "").lower(): header
+            for header in headers
+            if isinstance(header, dict)
+            and isinstance(header.get("headerName"), str)
+        }
+
+        # Content Security Policy
+        csp = safe_dict(header_map.get("content-security-policy"))
+
+        if not csp.get("present", False):
             sec_points -= 15
-            factors.append({
-                "name": "Missing CSP Header",
-                "impactPoints": -15,
-                "reason": "Absence of Content Security Policy increases Cross-Site Scripting exposure.",
-                "type": "NEGATIVE"
-            })
+            add_factor(
+                "Missing CSP Header",
+                -15,
+                "Absence of Content Security Policy increases "
+                "exposure to script injection attacks.",
+                "SECURITY"
+            )
+
         elif csp.get("status") == "OPTIMAL":
-            factors.append({
-                "name": "Strict CSP Enabled",
-                "impactPoints": 10,
-                "reason": "Policy explicitly restricts untrusted code injection.",
-                "type": "POSITIVE"
-            })
+            add_factor(
+                "Strict CSP Enabled",
+                0,
+                "The website has an optimal Content Security Policy. "
+                "No additional bonus is applied.",
+                "SECURITY"
+            )
 
-        # HSTS
-        hsts = header_map.get("Strict-Transport-Security")
-        if not hsts or not hsts.get("present"):
+        # HTTP Strict Transport Security
+        hsts = safe_dict(
+            header_map.get("strict-transport-security")
+        )
+
+        if not hsts.get("present", False):
             sec_points -= 12
-            factors.append({
-                "name": "Missing HSTS Header",
-                "impactPoints": -12,
-                "reason": "Connections are susceptible to protocol downgrade attacks.",
-                "type": "NEGATIVE"
-            })
+            add_factor(
+                "Missing HSTS Header",
+                -12,
+                "The website does not advertise an HSTS response header.",
+                "SECURITY"
+            )
         else:
-            factors.append({
-                "name": "HSTS Protocol Enforced",
-                "impactPoints": 10,
-                "reason": "Browsers strictly mandate HTTPS transport.",
-                "type": "POSITIVE"
-            })
+            add_factor(
+                "HSTS Header Present",
+                0,
+                "The website advertises an HSTS response header.",
+                "SECURITY"
+            )
 
-        # X-Frame-Options
-        xfo = header_map.get("X-Frame-Options")
-        if not xfo or not xfo.get("present"):
+        # Clickjacking protection
+        xfo = safe_dict(header_map.get("x-frame-options"))
+
+        csp_value = (
+            csp.get("value")
+            or csp.get("headerValue")
+            or csp.get("header_value")
+            or ""
+        )
+
+        has_frame_ancestors = any(
+            directive.strip().lower().startswith("frame-ancestors ")
+            or directive.strip().lower() == "frame-ancestors"
+            for directive in str(csp_value).split(";")
+        )
+
+        has_clickjacking_protection = (
+            bool(xfo.get("present", False))
+            or has_frame_ancestors
+        )
+
+        if not has_clickjacking_protection:
             sec_points -= 6
+            add_factor(
+                "Missing Clickjacking Protection",
+                -6,
+                "Neither X-Frame-Options nor a CSP frame-ancestors "
+                "directive was confirmed by this check.",
+                "SECURITY"
+            )
         else:
-            factors.append({
-                "name": "Clickjacking Protection",
-                "impactPoints": 5,
-                "reason": "X-Frame-Options / Frame-Ancestors prevents unauthorized framing.",
-                "type": "POSITIVE"
-            })
+            add_factor(
+                "Clickjacking Protection",
+                0,
+                "X-Frame-Options or CSP frame-ancestors protection "
+                "was detected. No additional bonus is applied.",
+                "SECURITY"
+            )
 
-        # Insecure redirects
-        if redirects_data.get("redirects", {}).get("hasSuspiciousRedirect", False):
+        # Suspicious redirects
+        redirects = safe_dict(
+            safe_dict(redirects_data).get("redirects")
+        )
+
+        if redirects.get("hasSuspiciousRedirect", False):
             sec_points -= 30
-            factors.append({
-                "name": "Insecure Redirect Downgrade",
-                "impactPoints": -30,
-                "reason": "Traffic is routed from HTTPS to unencrypted HTTP.",
-                "type": "NEGATIVE"
-            })
+            add_factor(
+                "Insecure Redirect Downgrade",
+                -30,
+                "A suspicious redirect involving HTTPS-to-HTTP "
+                "downgrade was detected.",
+                "SECURITY"
+            )
 
         security_score = max(0, min(100, sec_points))
 
         # ==========================================
-        # 2. PRIVACY SCORE (0 - 100)
+        # 2. PRIVACY SCORE
         # ==========================================
+
         priv_points = 100
-        priv_info = privacy_data.get("privacy", {})
-        trackers = priv_info.get("trackers", [])
+
+        priv_info = safe_dict(
+            safe_dict(privacy_data).get("privacy")
+        )
+
+        trackers = safe_list(priv_info.get("trackers"))
         tracker_count = len(trackers)
-        ad_count = priv_info.get("adNetworkCount", 0)
-        fingerprinting = priv_info.get("fingerprintingDetected", False)
-        third_party_cookies = cookies_data.get("cookies", {}).get("thirdPartyCount", 0)
 
-        if fingerprinting:
+        ad_count = safe_count(priv_info.get("adNetworkCount", 0))
+        fingerprinting = priv_info.get(
+            "fingerprintingDetected", False
+        )
+
+        cookie_info = safe_dict(
+            safe_dict(cookies_data).get("cookies")
+        )
+
+        third_party_cookies = safe_count(
+            cookie_info.get("thirdPartyCount", 0)
+        )
+
+        # Fingerprinting
+        if fingerprinting is True:
             priv_points -= 35
-            factors.append({
-                "name": "Canvas/Hardware Fingerprinting",
-                "impactPoints": -35,
-                "reason": "Scripts perform aggressive client device identification.",
-                "type": "NEGATIVE"
-            })
+            add_factor(
+                "Canvas/Hardware Fingerprinting",
+                -35,
+                "Scripts perform device identification "
+                "through fingerprinting techniques.",
+                "PRIVACY"
+            )
 
+        # Trackers
         if tracker_count > 0:
             penalty = min(30, tracker_count * 5)
             priv_points -= penalty
-            factors.append({
-                "name": f"{tracker_count} Known Trackers Detected",
-                "impactPoints": -penalty,
-                "reason": f"Page initiates telemetry and user profiling to {tracker_count} tracking services.",
-                "type": "NEGATIVE"
-            })
-        else:
-            factors.append({
-                "name": "Zero Trackers Detected",
-                "impactPoints": 15,
-                "reason": "No commercial tracking or profiling scripts identified.",
-                "type": "POSITIVE"
-            })
 
+            add_factor(
+                f"{tracker_count} Known Trackers Detected",
+                -penalty,
+                f"{tracker_count} known tracking services "
+                "were identified by the scanner.",
+                "PRIVACY"
+            )
+        else:
+            add_factor(
+                "Zero Trackers Detected",
+                0,
+                "No known trackers were identified by the "
+                "current scanning method. This does not "
+                "guarantee the absence of tracking.",
+                "PRIVACY"
+            )
+
+        # Advertising networks
         if ad_count > 0:
             penalty = min(20, ad_count * 4)
             priv_points -= penalty
-            factors.append({
-                "name": f"Advertising Networks Active ({ad_count})",
-                "impactPoints": -penalty,
-                "reason": f"Advertising SDKs loaded ({ad_count} networks).",
-                "type": "NEGATIVE"
-            })
 
+            add_factor(
+                f"Advertising Networks Active ({ad_count})",
+                -penalty,
+                f"{ad_count} advertising networks were identified.",
+                "PRIVACY"
+            )
+
+        # Third-party cookies
         if third_party_cookies > 0:
             penalty = min(15, third_party_cookies * 3)
             priv_points -= penalty
-            factors.append({
-                "name": "Third-Party Cookies",
-                "impactPoints": -penalty,
-                "reason": f"{third_party_cookies} cookies stored on external domains.",
-                "type": "NEGATIVE"
-            })
+
+            add_factor(
+                "Third-Party Cookies",
+                -penalty,
+                f"{third_party_cookies} third-party cookies "
+                "were observed by the scanner.",
+                "PRIVACY"
+            )
 
         privacy_score = max(0, min(100, priv_points))
 
         # ==========================================
-        # 3. THREAT SCORE (0 - 100)
+        # 3. THREAT SCORE
         # ==========================================
-        # 100 means completely safe, 0 means high threat
-        threat_info = threat_data.get("threat", {})
-        threat_prob = threat_info.get("probability", 0.0)
 
-        # ML Threat Probability
-        ml_threat_points = int((1.0 - threat_prob) * 100)
+        threat_info = safe_dict(
+            safe_dict(threat_data).get("threat")
+        )
 
-        # Heuristic adjustments
-        url_indicators = url_data.get("indicators", [])
-        for ind in url_indicators:
-            if ind.get("detected"):
-                if ind["name"] == "ip_as_host":
-                    ml_threat_points -= 40
-                    factors.append({
-                        "name": "Direct IP Destination",
-                        "impactPoints": -40,
-                        "reason": "Host uses numeric IP rather than verifiable domain.",
-                        "type": "NEGATIVE"
-                    })
-                elif ind["name"] == "punycode_homograph":
-                    ml_threat_points -= 25
-                    factors.append({
-                        "name": "Lookalike Punycode Encoding",
-                        "impactPoints": -25,
-                        "reason": "Domain employs Unicode homograph representations.",
-                        "type": "NEGATIVE"
-                    })
-                elif ind["name"] == "high_entropy_domain":
-                    ml_threat_points -= 15
+        raw_probability = threat_info.get("probability")
 
-        threat_score = max(0, min(100, ml_threat_points))
+        try:
+            threat_prob = float(raw_probability)
+            probability_available = math.isfinite(threat_prob)
+        except (TypeError, ValueError, OverflowError):
+            threat_prob = 0.5
+            probability_available = False
+
+        if probability_available:
+            threat_prob = max(0.0, min(1.0, threat_prob))
+
+            ml_threat_points = int(round(
+                (1.0 - threat_prob) * 100
+            ))
+
+            ml_impact = ml_threat_points - 100
+
+            add_factor(
+                "ML Threat Assessment",
+                ml_impact,
+                f"Model threat probability: "
+                f"{threat_prob * 100:.2f}%. "
+                f"Initial threat score: {ml_threat_points}/100.",
+                "THREAT"
+            )
+
+        else:
+            # Missing or invalid model output must not be
+            # interpreted as proof that a URL is safe.
+            ml_threat_points = 50
+
+            add_factor(
+                "ML Threat Assessment Unavailable",
+                -50,
+                "A valid model probability was not provided. "
+                "A neutral threat score of 50/100 is used instead "
+                "of assuming zero threat.",
+                "THREAT"
+            )
+
+        threat_points = ml_threat_points
+
+        # URL-based heuristic indicators
+        url_indicators = safe_list(
+            safe_dict(url_data).get("indicators")
+        )
+
+        applied_indicators = set()
+
+        for indicator in url_indicators:
+            if not isinstance(indicator, dict):
+                continue
+
+            if not indicator.get("detected"):
+                continue
+
+            indicator_name = indicator.get("name")
+
+            # Avoid applying the same heuristic more than once.
+            if indicator_name in applied_indicators:
+                continue
+
+            applied_indicators.add(indicator_name)
+
+            if indicator_name == "ip_as_host":
+                threat_points -= 40
+                add_factor(
+                    "Direct IP Destination",
+                    -40,
+                    "The destination uses a numeric IP address "
+                    "instead of a conventional domain name.",
+                    "THREAT"
+                )
+
+            elif indicator_name == "punycode_homograph":
+                threat_points -= 25
+                add_factor(
+                    "Lookalike Punycode Encoding",
+                    -25,
+                    "The domain contains punycode encoding "
+                    "that may represent a homograph risk.",
+                    "THREAT"
+                )
+
+            elif indicator_name == "high_entropy_domain":
+                threat_points -= 15
+                add_factor(
+                    "High Entropy Domain",
+                    -15,
+                    "The domain contains unusually high "
+                    "character randomness.",
+                    "THREAT"
+                )
+
+        threat_score = max(0, min(100, threat_points))
 
         # ==========================================
-        # 4. OVERALL COMPOSITE SCORE (0 - 100)
+        # 4. OVERALL COMPOSITE SCORE
         # ==========================================
-        # Weighted formula: 40% Security + 35% Privacy + 25% Threat
-        overall = int(round((0.40 * security_score) + (0.35 * privacy_score) + (0.25 * threat_score)))
+
+        # 40% Security + 35% Privacy + 25% Threat
+
+        overall = int(round(
+            (0.40 * security_score)
+            + (0.35 * privacy_score)
+            + (0.25 * threat_score)
+        ))
 
         if overall >= 80:
             risk_class = "SAFE"

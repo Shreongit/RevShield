@@ -22,4 +22,3 @@ pytest
 pytest-asyncio
 python-multipart
 email-validator
-greenlet

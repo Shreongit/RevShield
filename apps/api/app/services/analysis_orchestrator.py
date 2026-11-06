@@ -19,7 +19,14 @@ from app.analyzers import (
     URLAnalyzer,
 )
 from app.core.config import settings
-from app.core.security import validate_target_url_security
+from app.core.security import (
+    validate_target_url_security,
+    validate_target_url_security_with_addresses,
+)
+from app.core.pinned_transport import (
+    PinnedAddressRegistry,
+    PinnedAsyncHTTPTransport,
+)
 from app.models.models import AnalysisReport
 from app.services.cache_service import cache_service
 
@@ -65,7 +72,7 @@ class AnalysisOrchestrator:
         stage_message: str,
         is_complete: bool = False,
         error: Optional[str] = None,
-        report: Optional[Dict[str, Any]] = None
+        report: Optional[Dict[str, Any]] = None,
     ):
         payload = {
             "analysisId": analysis_id,
@@ -76,13 +83,13 @@ class AnalysisOrchestrator:
             "stageMessage": stage_message,
             "isComplete": is_complete,
             "error": error,
-            "report": report
+            "report": report,
         }
 
         cache_service.set(
             f"status:{analysis_id}",
             payload,
-            ttl=3600
+            ttl=3600,
         )
 
     async def run_analysis(
@@ -90,7 +97,7 @@ class AnalysisOrchestrator:
         analysis_id: str,
         raw_url: str,
         user_id: Optional[str] = None,
-        db_session: Optional[AsyncSession] = None
+        db_session: Optional[AsyncSession] = None,
     ) -> Dict[str, Any]:
 
         start_time = time.time()
@@ -116,12 +123,15 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Checking URL format and validating against "
                 "private networks (Anti-SSRF)..."
-            )
+            ),
         )
 
-        is_valid, normalized_url, err_msg = (
-            validate_target_url_security(raw_url)
-        )
+        (
+            is_valid,
+            normalized_url,
+            initial_addresses,
+            err_msg,
+        ) = validate_target_url_security_with_addresses(raw_url)
 
         if not is_valid:
             await self.update_status(
@@ -132,7 +142,7 @@ class AnalysisOrchestrator:
                 stage_progress=100,
                 stage_message=f"Validation failed: {err_msg}",
                 is_complete=True,
-                error=err_msg
+                error=err_msg,
             )
 
             return {"error": err_msg}
@@ -153,13 +163,13 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Establishing SSL handshake and parsing "
                 "certificate parameters..."
-            )
+            ),
         )
 
         context = AnalysisContext(
             raw_url=raw_url,
             normalized_url=normalized_url,
-            domain=domain
+            domain=domain,
         )
 
         tls_res = await self.tls_analyzer.analyze(context)
@@ -177,7 +187,7 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Requesting website headers with TLS verification "
                 "and redirect security checks..."
-            )
+            ),
         )
 
         redirect_hops: List[Dict[str, Any]] = []
@@ -196,36 +206,56 @@ class AnalysisOrchestrator:
 
         max_redirects = max(
             0,
-            int(settings.MAX_REDIRECTS)
+            int(settings.MAX_REDIRECTS),
         )
 
         max_response_bytes = max(
             1,
-            int(settings.MAX_RESPONSE_BYTES)
+            int(settings.MAX_RESPONSE_BYTES),
         )
 
         timeout = httpx.Timeout(
             settings.REQUEST_TIMEOUT_SECONDS
         )
 
-        try:
-            async with httpx.AsyncClient(
-                verify=True,
-                timeout=timeout,
-                follow_redirects=False,
-                trust_env=False,
-                headers={
-                    "User-Agent": self.USER_AGENT
-                }
-            ) as client:
+        registry = PinnedAddressRegistry()
 
-                # Every request is validated before it is sent.
-                # Redirects are handled manually below.
+        registry.register_url(
+            normalized_url,
+            initial_addresses,
+        )
+
+        pinned_transport = PinnedAsyncHTTPTransport(
+            registry=registry,
+            verify=True,
+            retries=0,
+        )
+
+        # Production uses the DNS-pinned transport.
+        # Existing tests may replace AsyncClient with a wrapper
+        # that supplies its own MockTransport.
+        client_kwargs = {
+            "timeout": timeout,
+            "follow_redirects": False,
+            "trust_env": False,
+            "headers": {"User-Agent": self.USER_AGENT},
+        }
+
+        if isinstance(httpx.AsyncClient, type):
+            client_kwargs["transport"] = pinned_transport
+
+        try:
+            async with httpx.AsyncClient(**client_kwargs) as client:
 
                 for _ in range(max_redirects + 1):
 
-                    is_valid, safe_url, validation_error = (
-                        validate_target_url_security(current_url)
+                    (
+                        is_valid,
+                        safe_url,
+                        validated_addresses,
+                        validation_error,
+                    ) = validate_target_url_security_with_addresses(
+                        current_url
                     )
 
                     if not is_valid:
@@ -233,13 +263,16 @@ class AnalysisOrchestrator:
                             "A redirect destination was rejected "
                             "by URL security validation."
                         )
-
                         fetch_issue_type = "blocked"
                         break
 
                     current_url = safe_url
 
-                    # Detect redirect loops using normalized URLs.
+                    registry.register_url(
+                        current_url,
+                        validated_addresses,
+                    )
+
                     loop_key = self._redirect_loop_key(current_url)
 
                     if loop_key in visited_urls:
@@ -247,7 +280,6 @@ class AnalysisOrchestrator:
                             "A redirect loop was detected. "
                             "The repeated destination was not requested."
                         )
-
                         fetch_issue_type = "loop"
                         break
 
@@ -255,7 +287,7 @@ class AnalysisOrchestrator:
 
                     async with client.stream(
                         "GET",
-                        current_url
+                        current_url,
                     ) as response:
 
                         response_status = response.status_code
@@ -263,10 +295,9 @@ class AnalysisOrchestrator:
 
                         actual_url = str(response.url)
 
-                        # Record every actual HTTP response.
                         redirect_hops.append({
                             "url": actual_url,
-                            "status_code": response.status_code
+                            "status_code": response.status_code,
                         })
 
                         location = response.headers.get("location")
@@ -283,37 +314,34 @@ class AnalysisOrchestrator:
                                     "The configured maximum redirect "
                                     "count was reached."
                                 )
-
                                 fetch_issue_type = "limit"
                                 break
 
-                            # Resolve relative redirect locations.
                             next_url = urljoin(
                                 actual_url,
-                                location
+                                location,
                             )
 
                             next_parsed = urlparse(next_url)
 
-                            # Reject unsupported protocols before
-                            # attempting another network request.
                             if next_parsed.scheme.lower() not in (
                                 "http",
-                                "https"
+                                "https",
                             ):
                                 fetch_issue = (
                                     "A redirect used an unsupported "
                                     "URL protocol and was blocked."
                                 )
-
                                 fetch_issue_type = "blocked"
                                 break
 
-                            # Validate the destination immediately.
-                            # It will also be checked again before
-                            # the next request.
-                            next_valid, safe_next_url, next_error = (
-                                validate_target_url_security(next_url)
+                            (
+                                next_valid,
+                                safe_next_url,
+                                next_addresses,
+                                next_error,
+                            ) = validate_target_url_security_with_addresses(
+                                next_url
                             )
 
                             if not next_valid:
@@ -321,19 +349,19 @@ class AnalysisOrchestrator:
                                     "A redirect destination was rejected "
                                     "by URL security validation."
                                 )
-
                                 fetch_issue_type = "blocked"
                                 break
+
+                            registry.register_url(
+                                safe_next_url,
+                                next_addresses,
+                            )
 
                             redirect_count += 1
                             current_url = safe_next_url
 
-                            # Close the current response and continue
-                            # with the individually validated target.
                             continue
 
-                        # Final non-redirect response:
-                        # read no more than the configured byte limit.
                         body = bytearray()
 
                         async for chunk in response.aiter_bytes():
@@ -354,10 +382,9 @@ class AnalysisOrchestrator:
 
                         response_body = body.decode(
                             encoding,
-                            errors="replace"
+                            errors="replace",
                         )
 
-                        # Capture cookies from the final response.
                         for name, value in response.cookies.items():
 
                             cookies_list.append({
@@ -370,13 +397,12 @@ class AnalysisOrchestrator:
                                 "secure": (
                                     urlparse(actual_url).scheme.lower()
                                     == "https"
-                                )
+                                ),
                             })
 
                         break
 
         except httpx.RequestError:
-            # Do not disable TLS verification as a fallback.
             response_status = 502
             response_headers = {}
             response_body = ""
@@ -385,10 +411,12 @@ class AnalysisOrchestrator:
                 "The HTTP request failed. The destination may be "
                 "unreachable or its TLS certificate may not be trusted."
             )
-
             fetch_issue_type = "request_error"
 
-        # Populate the shared analyzer context.
+        # ==========================================
+        # 4. POPULATE ANALYSIS CONTEXT
+        # ==========================================
+
         context.response_status = response_status
         context.response_headers = response_headers
         context.response_body = response_body
@@ -396,13 +424,13 @@ class AnalysisOrchestrator:
         context.response_cookies = cookies_list
 
         # ==========================================
-        # 4. ANALYZE HEADERS
+        # 5. ANALYZE HEADERS
         # ==========================================
 
         headers_res = await self.header_analyzer.analyze(context)
 
         # ==========================================
-        # 5. ANALYZE REDIRECTS
+        # 6. ANALYZE REDIRECTS
         # ==========================================
 
         await self.update_status(
@@ -414,12 +442,11 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Auditing redirect chain for protocol downgrades "
                 "and unsafe destinations..."
-            )
+            ),
         )
 
         redirects_res = await self.redirect_analyzer.analyze(context)
 
-        # Report blocked or interrupted redirect processing.
         if fetch_issue:
 
             if fetch_issue_type == "blocked":
@@ -434,7 +461,7 @@ class AnalysisOrchestrator:
                         "Ensure redirect destinations resolve only "
                         "to permitted public network addresses and "
                         "use supported HTTP or HTTPS protocols."
-                    )
+                    ),
                 })
 
             elif fetch_issue_type == "loop":
@@ -448,7 +475,7 @@ class AnalysisOrchestrator:
                     "remediation": (
                         "Correct the redirect configuration to "
                         "prevent repeated destinations."
-                    )
+                    ),
                 })
 
             elif fetch_issue_type == "limit":
@@ -462,11 +489,11 @@ class AnalysisOrchestrator:
                     "remediation": (
                         "Reduce unnecessary redirects and configure "
                         "a valid final destination."
-                    )
+                    ),
                 })
 
         # ==========================================
-        # 6. DETECT TRACKERS
+        # 7. DETECT TRACKERS
         # ==========================================
 
         await self.update_status(
@@ -478,13 +505,13 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Inspecting page resources for trackers, "
                 "analytics beacons, and advertising..."
-            )
+            ),
         )
 
         trackers_res = await self.tracker_analyzer.analyze(context)
 
         # ==========================================
-        # 7. ANALYZE COOKIES
+        # 8. ANALYZE COOKIES
         # ==========================================
 
         await self.update_status(
@@ -496,13 +523,13 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Evaluating cookie security attributes, "
                 "persistence, and classification..."
-            )
+            ),
         )
 
         cookies_res = await self.cookie_analyzer.analyze(context)
 
         # ==========================================
-        # 8. EVALUATE THREATS
+        # 9. EVALUATE THREATS
         # ==========================================
 
         await self.update_status(
@@ -514,14 +541,14 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Executing Machine Learning threat classification "
                 "and heuristic checks..."
-            )
+            ),
         )
 
         url_res = await self.url_analyzer.analyze(context)
         phishing_res = await self.phishing_analyzer.analyze(context)
 
         # ==========================================
-        # 9. CALCULATE SCORES
+        # 10. CALCULATE SCORES
         # ==========================================
 
         await self.update_status(
@@ -533,7 +560,7 @@ class AnalysisOrchestrator:
             stage_message=(
                 "Synthesizing multi-factor security "
                 "and privacy score..."
-            )
+            ),
         )
 
         scores = ScoreEngine.calculate_scores(
@@ -543,11 +570,11 @@ class AnalysisOrchestrator:
             redirects_data=redirects_res,
             privacy_data=trackers_res,
             cookies_data=cookies_res,
-            threat_data=phishing_res
+            threat_data=phishing_res,
         )
 
         # ==========================================
-        # 10. AGGREGATE FINDINGS
+        # 11. AGGREGATE FINDINGS
         # ==========================================
 
         all_findings = (
@@ -561,7 +588,7 @@ class AnalysisOrchestrator:
         )
 
         # ==========================================
-        # 11. BUILD REPORT
+        # 12. BUILD REPORT
         # ==========================================
 
         elapsed_ms = int(
@@ -588,27 +615,27 @@ class AnalysisOrchestrator:
             "privacy": trackers_res["privacy"],
             "cookies": cookies_res["cookies"],
             "threat": phishing_res["threat"],
-            "findings": all_findings
+            "findings": all_findings,
         }
 
         # ==========================================
-        # 12. CACHE REPORT
+        # 13. CACHE REPORT
         # ==========================================
 
         cache_service.set(
             f"report:{analysis_id}",
             report_payload,
-            ttl=settings.ANALYSIS_CACHE_TTL_SECONDS
+            ttl=settings.ANALYSIS_CACHE_TTL_SECONDS,
         )
 
         cache_service.set(
             f"domain:{domain}",
             report_payload,
-            ttl=settings.ANALYSIS_CACHE_TTL_SECONDS
+            ttl=settings.ANALYSIS_CACHE_TTL_SECONDS,
         )
 
         # ==========================================
-        # 13. SAVE TO DATABASE
+        # 14. SAVE TO DATABASE
         # ==========================================
 
         if db_session:
@@ -625,7 +652,7 @@ class AnalysisOrchestrator:
                     risk_classification=scores["riskClassification"],
                     execution_time_ms=elapsed_ms,
                     report_json=report_payload,
-                    user_id=user_id
+                    user_id=user_id,
                 )
 
                 db_session.add(db_report)
@@ -635,7 +662,7 @@ class AnalysisOrchestrator:
                 await db_session.rollback()
 
         # ==========================================
-        # 14. COMPLETE ANALYSIS
+        # 15. COMPLETE ANALYSIS
         # ==========================================
 
         await self.update_status(
@@ -646,7 +673,7 @@ class AnalysisOrchestrator:
             stage_progress=100,
             stage_message="Analysis completed successfully.",
             is_complete=True,
-            report=report_payload
+            report=report_payload,
         )
 
         return report_payload
